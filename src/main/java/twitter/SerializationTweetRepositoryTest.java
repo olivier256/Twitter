@@ -8,22 +8,16 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class SerializationTweetRepositoryTest {
+
 	private static final String TREMBLE_ELON_MUSK = "Tremble, Elon Musk !";
 	private static final String HELLO_WORLD = "Hello, World!";
 	private final Random random;
 
-	private final TweetRepository tweetRepository;
+	private final SerializationTweetRepository tweetRepository;
 
-	public SerializationTweetRepositoryTest() {
+	public SerializationTweetRepositoryTest(File file) {
 		random = new Random();
-		File file;
-		try {
-			file = File.createTempFile("TweetRepositoryTest", ".dat");
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e.getMessage());
-		}
-		tweetRepository = SerializationTweetRepository.getInstance(file.getAbsolutePath());
+		tweetRepository = new SerializationTweetRepository(file.getAbsolutePath());
 	}
 
 	public void test() {
@@ -33,7 +27,9 @@ public class SerializationTweetRepositoryTest {
 
 	public void testInit() {
 		tweetRepository.save(new Tweet(HELLO_WORLD));
+		sleep(10);
 		tweetRepository.save(new Tweet("Ceci est mon premier tweet"));
+		sleep(10);
 		tweetRepository.save(new Tweet(TREMBLE_ELON_MUSK));
 		List<Tweet> tweets = tweetRepository.findAll();
 		tweets = tweets.stream() //
@@ -43,11 +39,20 @@ public class SerializationTweetRepositoryTest {
 		assert tweets.get(2).getContent().equals(HELLO_WORLD) : tweets.get(2);
 	}
 
+	private void sleep(int i) {
+		try {
+			Thread.sleep(i);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			Thread.currentThread().interrupt();
+		}
+	}
+
 	public void testVolume() {
 		List<Tweet> tweets = new ArrayList<>();
 		for (int i = 0; i < 7000; i++) {
 			Tweet tweet = generateTweet();
-			System.out.println(i + "\t" + tweet);
+			System.out.println(tweet.toString());
 			tweets.add(tweet);
 		}
 		for (Tweet tweet : tweets) {
@@ -57,22 +62,33 @@ public class SerializationTweetRepositoryTest {
 
 	private Tweet generateTweet() {
 		StringBuilder sb = new StringBuilder();
-		int bound = random.nextInt(141);
-		for (int i = 0; i < bound; i++) {
+		int bound = random.nextInt(141 - 60);
+		for (int i = 0; i < 60 + bound; i++) {
 			char c = (char) (32 + random.nextInt(128 - 32));
 			sb.append(c);
 		}
-		Tweet tweet = new Tweet(sb.toString());
-		return tweet;
+		return new Tweet(sb.toString());
 	}
 
-	public static void main(String[] args) {
+	public void tearDown() {
+		try {
+			tweetRepository.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
 		boolean assertEnabled = false;
 		assert assertEnabled = true;
 		if (!assertEnabled) {
 			throw new AssertionError("Lancer avec l'argument VM -ea");
 		}
-		new SerializationTweetRepositoryTest().test();
+		File file = File.createTempFile("TweetRepositoryTest", ".dat");
+
+		SerializationTweetRepositoryTest test = new SerializationTweetRepositoryTest(file);
+		test.test();
+		test.tearDown();
 	}
 
 }

@@ -13,15 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 public class HomeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private final TweetService tweetService = TweetService.getInstance();
-
-	public HomeServlet() {
-		super();
-	}
-
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		TweetService tweetService = (TweetService) request.getServletContext().getAttribute("tweetService");
 		Collection<Tweet> tweets = tweetService.findAll();
 		request.setAttribute("tweets", tweets);
 		try {

@@ -3,8 +3,7 @@ package twitter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArrayListTweetRepository implements TweetRepository {
-	private static TweetRepository instance;
+public class ArrayListTweetRepository implements Repository<Tweet> {
 	private final List<Tweet> tweets;
 
 	private ArrayListTweetRepository() {
@@ -23,13 +22,6 @@ public class ArrayListTweetRepository implements TweetRepository {
 			e.printStackTrace();
 			Thread.currentThread().interrupt();
 		}
-	}
-
-	public static TweetRepository getInstance() {
-		if (instance == null) {
-			instance = new ArrayListTweetRepository();
-		}
-		return instance;
 	}
 
 	@Override

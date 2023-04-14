@@ -4,17 +4,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class TweetService {
-	private static TweetService instance;
 
-	// private final TweetRepository tweetRepository =
-	// SerializationTweetRepository.getInstance("twitter_repository.dat");
-	private final TweetRepository tweetRepository = ArrayListTweetRepository.getInstance();
+	private final Repository<Tweet> tweetRepository;
 
-	public static TweetService getInstance() {
-		if (instance == null) {
-			instance = new TweetService();
-		}
-		return instance;
+	public TweetService(Repository<Tweet> tweetRepository) {
+		this.tweetRepository = tweetRepository;
 	}
 
 	public List<Tweet> findAll() {
