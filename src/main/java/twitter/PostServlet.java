@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 public class PostServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private final TweetService tweetService = Injector.getTweetService();
+	private final TweetService tweetService = TweetService.getInstance();
 
 	public PostServlet() {
 		super();
